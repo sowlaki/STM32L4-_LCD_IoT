@@ -29,7 +29,7 @@
  *      TYPEDEFS
  **********************/
 
-uint32_t my_fb [1];
+
 
 /**********************
  * GLOBAL PROTOTYPES

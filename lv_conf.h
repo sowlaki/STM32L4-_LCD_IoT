@@ -34,8 +34,8 @@
  *===================*/
 
 /* Horizontal and vertical resolution of the library.*/
-#define LV_HOR_RES          (320)
-#define LV_VER_RES          (240)
+#define LV_HOR_RES          (800)
+#define LV_VER_RES          (480)
 #define LV_DPI              100
 
 /* Size of VDB (Virtual Display Buffer: the internal graphics buffer).
@@ -48,7 +48,7 @@
 
 /* Use two Virtual Display buffers (VDB) parallelize rendering and flushing (optional)
  * The flushing should use DMA to write the frame buffer in the background*/
-#define LV_VDB_DOUBLE       0       /*1: Enable the use of 2 VDBs*/
+#define LV_VDB_DOUBLE       1       /*1: Enable the use of 2 VDBs*/
 #define LV_VDB2_ADR         0       /*Place VDB2 to a specific address (e.g. in external RAM) (0: allocate automatically into RAM; LV_VDB_ADR_INV: to replace it later with `lv_vdb_set_adr()`)*/
 
 /* Enable anti-aliasing (lines, and radiuses will be smoothed) */
@@ -63,7 +63,7 @@
  *=================*/
 
 /*Input device settings*/
-#define LV_INDEV_READ_PERIOD            50                     /*Input device read period in milliseconds*/
+#define LV_INDEV_READ_PERIOD            20                     /*Input device read period in milliseconds*/
 #define LV_INDEV_POINT_MARKER           0                      /*Mark the pressed points  (required: USE_LV_REAL_DRAW = 1)*/
 #define LV_INDEV_DRAG_LIMIT             10                     /*Drag threshold in pixels */
 #define LV_INDEV_DRAG_THROW             20                     /*Drag throw slow-down in [%]. Greater value means faster slow-down */
@@ -71,7 +71,7 @@
 #define LV_INDEV_LONG_PRESS_REP_TIME    100                    /*Repeated trigger period in long press [ms] */
 
 /*Color settings*/
-#define LV_COLOR_DEPTH     16                     /*Color depth: 1/8/16/32*/
+#define LV_COLOR_DEPTH     32                     /*Color depth: 1/8/16/32*/
 #define LV_COLOR_16_SWAP   0                      /*Swap the 2 bytes of RGB565 color. Useful if the display has a 8 bit interface (e.g. SPI)*/
 #define LV_COLOR_SCREEN_TRANSP        0           /*1: Enable screen transparency. Useful for OSD or other overlapping GUIs. Requires ARGB8888 colors*/
 #define LV_COLOR_TRANSP    LV_COLOR_LIME          /*Images pixels with this color will not be drawn (with chroma keying)*/
@@ -138,7 +138,7 @@
 /* More info about fonts: https://littlevgl.com/basics#fonts
  * To enable a built-in font use 1,2,4 or 8 values
  * which will determine the bit-per-pixel */
-#define USE_LV_FONT_DEJAVU_10              0
+#define USE_LV_FONT_DEJAVU_10              1
 #define USE_LV_FONT_DEJAVU_10_LATIN_SUP    0
 #define USE_LV_FONT_DEJAVU_10_CYRILLIC     0
 #define USE_LV_FONT_SYMBOL_10              0

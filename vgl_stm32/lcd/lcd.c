@@ -5,7 +5,7 @@
  *      Author: cesar
  */
 
-
+#include "main.h"
 #include "lcd.h"
 #include "stm32l4xx.h"
 #include "stm32l4xx_hal.h"
@@ -25,7 +25,7 @@
 #define DMA_CHANNEL              DMA2_CHANNEL
 #define DMA_STREAM_IRQ           DMA2_Stream0_IRQ
 
-
+static __IO uint32_t * my_fb = (__IO  uint8_t *) (OCTOSPI1_BASE);
 
 /**********************
  *  STATIC VARIABLES
@@ -53,8 +53,8 @@ static const lv_color_t * buf_to_flush;
 static void DMA2D_Config();
 
 
-static void DMA_TransferComplete(DMA_HandleTypeDef *hdma2d);
-static void DMA_TransferError(DMA_HandleTypeDef *hdma2d);
+static void DMA_TransferComplete(DMA_HandleTypeDef *han);
+static void DMA_TransferError(DMA_HandleTypeDef *han);
 
 
 
@@ -159,7 +159,7 @@ static void tft_map(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_col
 		  /*##-7- Start the DMA transfer using the interrupt mode #*/
 		  /* Configure the source, destination and buffer size DMA fields and Start DMA Stream transfer */
 		  /* Enable All the DMA interrupts */
-		  if(HAL_DMA_Start_IT(&hdma2d,(uint32_t)buf_to_flush, (uint32_t)&my_fb[y_fill_act * TFT_HOR_RES + x1_flush],
+		  if(HAL_DMA_Start_IT(&DmaHandle,(uint32_t)buf_to_flush, (uint32_t)&my_fb[y_fill_act * TFT_HOR_RES + x1_flush],
 							  (x2_flush - x1_flush + 1)) != HAL_OK)
 		  {
 		    while(1)
@@ -198,7 +198,7 @@ static void tft_flush(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const lv_c
 		  /* Configure the source, destination and buffer size DMA fields and Start DMA Stream transfer */
 		  /* Enable All the DMA interrupts */
 		HAL_StatusTypeDef err;
-		err = HAL_DMA_Start_IT(&hdma2d,(uint32_t)buf_to_flush, (uint32_t)&my_fb[y_fill_act * TFT_HOR_RES + x1_flush],
+		err = HAL_DMA_Start_IT(&DmaHandle,(uint32_t)buf_to_flush, (uint32_t)&my_fb[y_fill_act * TFT_HOR_RES + x1_flush],
 				  (x2_flush - x1_flush + 1));
 		if(err != HAL_OK)
 		{

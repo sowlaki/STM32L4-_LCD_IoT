@@ -13,4 +13,5 @@
 
 void lv_touch_init(void);
 
+
 #endif /* VGL_TOUCH_H_ */

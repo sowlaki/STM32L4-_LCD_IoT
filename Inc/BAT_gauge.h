@@ -20,7 +20,7 @@
 // Device specific values
 
 #define GAUGE_ADDRESS 0xAA  // Write address.
-#define MY_BAT_CAPACITY 1200  // [mAh]
+#define BATCAPACITY 1200    // [mAh] battery capacity
 
 
 
@@ -52,10 +52,17 @@ I2C_HandleTypeDef hi2c1;
 
 // Call functions
 
+// Functions for application
+
+uint16_t Charge(void); // Returns 0 to 100 percent whole values.
+
+// For debugging and sub functions
+void GAUGE_CapacitySetup(uint16_t mAh_capacity);
+
 void Write_GAUGECMD( uint8_t * addressBuffer,  uint8_t * dataBuffer, uint8_t nBytes);
 
 uint8_t Read_GAUGECMD(uint8_t * addressBuffer);
 
-void Read_DataBlock(int offset, int nbits, uint8_t * returnData);
+void Read_DataBlock(int offset, int nbits, uint16_t returnData);
 
 #endif /* BAT_GAUGE_H_ */

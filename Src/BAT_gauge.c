@@ -45,18 +45,38 @@ const uint8_t BlockDataControl[] = {0x61};
 
 
 
-void	GAUGE_capacitySetup(void){
+
+uint16_t Charge(void){
+
+	uint8_t lsbAddress = StateOfCharge[0];
+	uint8_t msbAddress = StateOfCharge[1];
+
+
+	uint8_t lsbCharge = Read_GAUGECMD(&lsbAddress);
+	HAL_Delay(1);
+	uint8_t msbCharge = Read_GAUGECMD(&msbAddress);
+
+	uint16_t rValue = ((lsbCharge) | (msbCharge << 8));
+
+	return rValue;
+}
 
 
 
-	const uint8_t databuffer[] = {
+
+void	GAUGE_CapacitySetup(uint16_t aBat_capacity){
+
+
+
+	uint8_t databuffer[] = {
 
 			0x00, 0x80,  /* 0: (0x8000) sealed to unsealed "key" */
 			0x13, 0x00,	 /* 2: (0x0013) SET_CFGUPDATE  */
 			0x00,  		 /* 4: (0x00) Enable blockdata memory controll */
 			0x52, 		 /* 5: (0x52) Accese block 0x52in memory */
 			0x00,		 /* 6: (0x00) Access offsett 0x00 in block 0x52 */
-
+			0x42, 0x00,  /* 7: (0x0042) Exit CFGUPDATE */
+			0x20, 0x00,  /* 9: (0x0020) Enter UNSEALED */
 	};
 
 
@@ -74,7 +94,46 @@ void	GAUGE_capacitySetup(void){
 
 	uint8_t OLD_Csum = Read_GAUGECMD(BlockDataCheckSum);
 
-	uint8_t OLD_DesCap_ = ReadDataBlock();
+	uint16_t OLD_DesCap = 0;
+	Read_DataBlock(10, 16, OLD_DesCap);
+
+	uint8_t OLD_DesCapLSB = (OLD_DesCap);
+	uint8_t OLD_DesCapMSB = (OLD_DesCap << 8);
+
+	// Write New CAPACITY
+	uint8_t CapAddrBuffer[] = {0x4A, 0x4B};
+
+	uint8_t CAPLSB = (aBat_capacity);
+	uint8_t CAPMSB = (aBat_capacity << 8);
+	uint8_t CapDataBuffer[] = {CAPLSB, CAPMSB};
+
+	Write_GAUGECMD(CapAddrBuffer,CapDataBuffer,1);
+	Write_GAUGECMD(&CapAddrBuffer[1], &CapDataBuffer[1], 1);
+
+
+	// Set new values for GAUGE
+	uint8_t temp = ((255 - OLD_Csum - OLD_DesCapLSB - OLD_DesCapMSB) % 256 );
+
+	uint8_t NEW_Csum = ((temp + 0x04 + 0xB0) % (256) );
+
+	uint8_t CsumBuff[] = {NEW_Csum};
+
+	// Write new CSUM
+	Write_GAUGECMD(BlockDataCheckSum, CsumBuff ,1);
+
+
+	// Exit CFGUPDATE
+	Write_GAUGECMD(Control, &databuffer[7], 2);
+
+	// Read flag to check if CFGUPDATE has been exited.
+	while((Read_GAUGECMD(Flags) & ( 1 << 4)) != 1){
+
+	}
+
+	// Return to unsealed mode
+	Write_GAUGECMD(Control,	&databuffer[9], 2);
+
+	// DONE !!!
 }
 
 
@@ -110,14 +169,26 @@ void	GAUGE_capacitySetup(void){
 
 	}
 
-	void Read_DataBlock( int offset, int nBits, uint8_t * returnData){
+	void Read_DataBlock( int offset, int nBits, uint16_t returnData){
 
-	int i, k;
-	k = (nBits % 8);
+	int k = (nBits % 8);
 
-	uint8_t DataBuffer[k];
-	uint8_t	BlockBuffer[] = {0x40};
 
+	uint8_t	Blockaddr1[] = {(0x40 + offset)};
+
+	uint8_t byte1 = Read_GAUGECMD(Blockaddr1);
+
+	if(k > 1){
+	uint8_t Blockaddr2[] = {(0x40 + (offset + 1))};
+
+	uint8_t byte2 = Read_GAUGECMD(Blockaddr2);
+
+	returnData = (byte1 | (byte2 << 8));
+	}
+	else
+	returnData = (byte1);
+
+/*
 		for (i = offset; i <= (offset + nBits); ++i ){
 			int j = 0;
 			BlockBuffer[j] = 0x40+i;
@@ -126,6 +197,9 @@ void	GAUGE_capacitySetup(void){
 			++j;
 
 		};
-
-}
+       for( f = 0; i <= nBits; ++i){
+    	   returnData = (DataBuffer[f] << (f+1));
+       }
+*/
+	}
 
